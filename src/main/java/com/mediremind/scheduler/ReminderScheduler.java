@@ -7,6 +7,7 @@ import com.mediremind.model.MedicineLog;
 import com.mediremind.model.MedicineSchedule;
 import com.mediremind.repository.AppointmentRepository;
 import com.mediremind.repository.MedicineLogRepository;
+import com.mediremind.repository.MedicineRepository;
 import com.mediremind.repository.MedicineScheduleRepository;
 import com.mediremind.service.EmailService;
 import com.mediremind.service.ObserverService;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -26,6 +28,7 @@ public class ReminderScheduler {
 
     private final MedicineScheduleRepository medicineScheduleRepository;
     private final MedicineLogRepository      medicineLogRepository;
+    private final MedicineRepository         medicineRepository;
     private final AppointmentRepository      appointmentRepository;
     private final EmailService               emailService;
     private final ObserverService            observerService;
@@ -33,11 +36,13 @@ public class ReminderScheduler {
     public ReminderScheduler(
             MedicineScheduleRepository medicineScheduleRepository,
             MedicineLogRepository      medicineLogRepository,
+            MedicineRepository         medicineRepository,
             AppointmentRepository      appointmentRepository,
             EmailService               emailService,
             ObserverService            observerService) {
         this.medicineScheduleRepository = medicineScheduleRepository;
         this.medicineLogRepository      = medicineLogRepository;
+        this.medicineRepository         = medicineRepository;
         this.appointmentRepository      = appointmentRepository;
         this.emailService               = emailService;
         this.observerService            = observerService;
@@ -194,5 +199,32 @@ public class ReminderScheduler {
 
                     log.debug("Weekly report sent to: {}", user.getEmail());
                 });
+    }
+    // ── Auto-cleanup expired medicines and appointments (daily at midnight) ──
+
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void cleanupExpiredRecords() {
+        // 1. Deactivate passed medicines
+        LocalDate today = LocalDate.now();
+        List<com.mediremind.model.Medicine> expiredMedicines = medicineRepository.findByIsActiveTrueAndEndDateBefore(today);
+        if (!expiredMedicines.isEmpty()) {
+            for (com.mediremind.model.Medicine medicine : expiredMedicines) {
+                medicine.setIsActive(false);
+                log.info("Auto-deactivated expired medicine: id={}, name={}", medicine.getId(), medicine.getName());
+            }
+            medicineRepository.saveAll(expiredMedicines);
+        }
+
+        // 2. Complete past appointments
+        LocalDateTime now = LocalDateTime.now();
+        List<Appointment> pastAppointments = appointmentRepository.findByStatusAndAppointmentDateBefore(AppointmentStatus.SCHEDULED, now);
+        if (!pastAppointments.isEmpty()) {
+            for (Appointment appt : pastAppointments) {
+                appt.setStatus(AppointmentStatus.COMPLETED);
+                log.info("Auto-completed past appointment: id={}, doctor={}", appt.getId(), appt.getDoctorName());
+            }
+            appointmentRepository.saveAll(pastAppointments);
+        }
     }
 }

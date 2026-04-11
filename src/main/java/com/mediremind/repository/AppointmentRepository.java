@@ -17,6 +17,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     Optional<Appointment> findByIdAndUserId(Long id, Long userId);
 
+    List<Appointment> findByStatusAndAppointmentDateBefore(AppointmentStatus status, LocalDateTime date);
+
     @Query("""
             SELECT a FROM Appointment a
             JOIN FETCH a.user u

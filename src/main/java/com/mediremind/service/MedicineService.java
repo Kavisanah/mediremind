@@ -73,10 +73,15 @@ public class MedicineService {
     }
 
     @Transactional(readOnly = true)
-    public List<MedicineResponse> getAllMedicines() {
+    public List<MedicineResponse> getAllMedicines(String search) {
         User user = securityUtils.getCurrentUser();
-        return medicineRepository.findByUserIdAndIsActiveTrue(user.getId())
-                .stream()
+        List<Medicine> medicines;
+        if (search != null && !search.trim().isEmpty()) {
+            medicines = medicineRepository.findByUserIdAndIsActiveTrueAndNameContainingIgnoreCase(user.getId(), search);
+        } else {
+            medicines = medicineRepository.findByUserIdAndIsActiveTrue(user.getId());
+        }
+        return medicines.stream()
                 .map(this::toResponse)
                 .toList();
     }

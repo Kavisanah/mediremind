@@ -35,8 +35,9 @@ public class MedicineController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MedicineResponse>>> getAllMedicines() {
-        List<MedicineResponse> response = medicineService.getAllMedicines();
+    public ResponseEntity<ApiResponse<List<MedicineResponse>>> getAllMedicines(
+            @RequestParam(required = false) String search) {
+        List<MedicineResponse> response = medicineService.getAllMedicines(search);
         return ResponseEntity
                 .ok(ApiResponse.success("Medicines retrieved successfully", response));
     }
