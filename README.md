@@ -1,37 +1,57 @@
-git# MediRemind - Medicine & Appointment Reminder System
+# MediRemind - Medicine & Appointment Reminder System
 
-MediRemind is a backend REST API built with Spring Boot. It helps users track their medicines, manage appointments, and receive email reminders. Users can also invite a caretaker or family member to monitor their health activity.
+MediRemind is a full-stack web application that helps users manage medicines, doctor appointments, and health reminders.  
+It also supports inviting a caretaker/observer to monitor health activity.
 
 ---
 
 ## Features
 
 - User registration and login with JWT authentication
-- Add, update, and delete medicines with dosage schedules
-- Track and manage doctor appointments
-- Log medicine intake history
-- Invite an observer/caretaker via email
+- Add, update, delete, search, and filter medicines
+- AI-powered medicine search (Groq API)
+- Manage doctor appointments
+- Track medicine intake history
+- Invite observer/caretaker via email
 - Automated email reminders for medicines and appointments
-- Dashboard with a summary of the user's health activity
+- Dashboard summary of health activity
 
 ---
 
 ## Tech Stack
 
+### Backend
 - Java 21
 - Spring Boot 3
-- Spring Security with JWT
+- Spring Security + JWT
 - Spring Data JPA
 - MySQL
 - Spring Mail (Gmail SMTP)
 - Lombok
 - Maven
 
+### Frontend
+- React 18
+- Vite
+- Tailwind CSS
+- Axios
+- Groq API
+
 ---
 
 ## Project Structure
 
+```text
+mediremind/
+├── src/                # Spring Boot backend
+├── frontend/           # React frontend (Vite + Tailwind)
+├── pom.xml
+└── README.md
 ```
+
+Backend package layout:
+
+```text
 src/main/java/com/mediremind/
 ├── config/
 ├── controller/
@@ -46,34 +66,52 @@ src/main/java/com/mediremind/
 └── service/
 ```
 
+Frontend layout:
+
+```text
+frontend/src/
+├── api/
+├── components/
+├── context/
+├── hooks/
+├── pages/
+└── utils/
+```
+
+---
+
+## Prerequisites
+
+- Java 21
+- Maven
+- MySQL
+- Node.js (LTS recommended)
+- npm
+
 ---
 
 ## Getting Started
 
-### Requirements
-
-- Java 21
-- MySQL
-- Maven
-
-### Steps
-
-1. Clone the repository
+### 1) Clone the Repository
 
 ```bash
 git clone https://github.com/Kavisanah/mediremind.git
 cd mediremind
 ```
 
-2. Create the database
+---
+
+### 2) Backend Setup
+
+#### Create database
 
 ```sql
 CREATE DATABASE mediremind;
 ```
 
-3. Set up your configuration
+#### Configure backend environment
 
-Copy `application.properties.example` to `application.properties` and fill in your values:
+Copy `application.properties.example` to `application.properties` and update values:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/mediremind
@@ -95,55 +133,92 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 app.backend-url=http://localhost:8080
 ```
 
-4. Run the application
+#### Run backend
 
+**Windows**
+```bash
+mvnw.cmd spring-boot:run
+```
+
+**macOS/Linux**
 ```bash
 ./mvnw spring-boot:run
 ```
 
-The server runs on `http://localhost:8080`
+Backend URL: `http://localhost:8080`
+
+---
+
+### 3) Frontend Setup
+
+```bash
+cd frontend
+npm install
+```
+
+Copy `.env.example` to `.env` and update values:
+
+```env
+VITE_API_URL=http://localhost:8080
+VITE_GROQ_API_KEY=your_groq_api_key
+```
+
+Run frontend:
+
+```bash
+npm run dev
+```
+
+Frontend URL: `http://localhost:5173`
 
 ---
 
 ## API Overview
 
-### Authentication
-- POST `/api/auth/register`
-- POST `/api/auth/login`
+### Auth
+- `POST /api/auth/register`
+- `POST /api/auth/login`
 
 ### Medicines
-- GET `/api/medicines`
-- POST `/api/medicines`
-- PUT `/api/medicines/{id}`
-- DELETE `/api/medicines/{id}`
+- `GET /api/medicines`
+- `POST /api/medicines`
+- `PUT /api/medicines/{id}`
+- `DELETE /api/medicines/{id}`
 
 ### Appointments
-- GET `/api/appointments`
-- POST `/api/appointments`
+- `GET /api/appointments`
+- `POST /api/appointments`
 
 ### Observer
-- POST `/api/observer/invite`
-- GET `/api/observer/accept`
+- `POST /api/observer/invite`
+- `GET /api/observer/accept`
 
 ### Dashboard
-- GET `/api/dashboard`
+- `GET /api/dashboard`
 
 ---
 
 ## Security
 
-All endpoints except `/api/auth/**` require a JWT token in the request header:
+All endpoints except `/api/auth/**` require JWT in the header:
 
-```
+```http
 Authorization: Bearer your_token_here
 ```
 
-Passwords are stored using BCrypt encoding.
+- Passwords are stored with BCrypt.
+- Sensitive files (`application.properties`, `.env`) are excluded from version control.
 
 ---
 
 ## Notes
 
-- The `application.properties` file is excluded from version control to protect credentials
-- Use the provided `.example` file as a reference when setting up locally
-- Email reminders are sent automatically based on scheduled tasks
+- Use `.example` files as local setup templates.
+- Email reminders are sent automatically by scheduled backend tasks.
+- Ensure Gmail SMTP app password is configured if using Gmail.
+
+---
+
+## License
+
+Add your preferred license here (e.g., MIT).
