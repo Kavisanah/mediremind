@@ -1,10 +1,38 @@
+# Build and Temp Files
+backend/target/
+frontend/dist/
+frontend/dist-ssr/
+frontend/node_modules/
+
+# Logs
+*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Environment and Secrets
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+backend/src/main/resources/application.properties
+
+# Editor and IDE
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+*.suo
+*.sln
+*.sw?
+.DS_Store
+
+# Java / Spring / Maven
 HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-### STS ###
 .apt_generated
 .classpath
 .factorypath
@@ -12,25 +40,3 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### Secrets ###
-src/main/resources/application.propertiespwd
