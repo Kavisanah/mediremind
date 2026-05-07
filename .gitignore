@@ -12,6 +12,9 @@ frontend/yarn-error.log*
 frontend/pnpm-debug.log*
 
 # Environment and Secrets
+.env
+.env.*
+!.env.example
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
