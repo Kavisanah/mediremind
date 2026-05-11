@@ -1,9 +1,12 @@
 package com.mediremind.service;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +44,20 @@ public class FileStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete file: " +
                     e.getMessage());
+        }
+    }
+
+    public Resource loadFileAsResource(String fileName) {
+        try {
+            Path filePath = Paths.get(uploadDir).resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read file: " + fileName);
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Could not read file: " + fileName, e);
         }
     }
 }

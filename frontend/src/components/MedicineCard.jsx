@@ -1,7 +1,21 @@
 import { Link } from 'react-router-dom'
 import { formatDate, formatTime, frequencyLabel } from '../utils/helpers'
 
+import api from '../api/axios'
+
 function MedicineCard({ medicine, onDelete, onAiInfo }) {
+  const handleViewPrescription = async () => {
+    try {
+      const res = await api.get(`/medicines/${medicine.id}/prescription`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(res.data);
+      window.open(url, '_blank');
+    } catch (err) {
+      alert('Failed to load prescription. It may not exist.');
+    }
+  };
+
   return (
     <div className="bg-slate-800/80 rounded-3xl border border-slate-800 shadow-card hover:shadow-card-md transition-all duration-300 p-6 flex flex-col h-full group relative overflow-hidden">
       
@@ -40,6 +54,15 @@ function MedicineCard({ medicine, onDelete, onAiInfo }) {
             className="w-full bg-gradient-to-r from-lavender-50 to-lavender-100 hover:from-lavender-100 hover:to-lavender-200 text-lavender-700 text-sm font-bold py-2.5 rounded-2xl transition-all duration-200 flex justify-center items-center gap-2 shadow-sm border border-lavender-200/50"
           >
             🤖 AI Info
+          </button>
+        )}
+
+        {medicine.prescriptionFile && (
+          <button
+            onClick={handleViewPrescription}
+            className="w-full bg-slate-900 hover:bg-slate-700 text-slate-300 text-sm font-bold py-2.5 rounded-2xl transition-all duration-200 flex justify-center items-center gap-2 shadow-sm border border-slate-700"
+          >
+            🖼️ View Prescription
           </button>
         )}
         

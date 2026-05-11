@@ -21,6 +21,7 @@ function EditMedicine() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [file, setFile] = useState(null)
 
   useEffect(() => {
     const fetch = async () => {
@@ -65,6 +66,15 @@ function EditMedicine() {
     setError('')
     try {
       await api.put(`/medicines/${id}`, { ...form, endDate: form.endDate || null })
+      
+      if (file) {
+        const formData = new FormData()
+        formData.append('file', file)
+        await api.post(`/medicines/${id}/prescription`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+      }
+
       navigate('/medicines')
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update medicine')
@@ -150,6 +160,22 @@ function EditMedicine() {
               <div>
                 <label className="block text-sm font-semibold text-slate-300 mb-1.5">Notes (optional)</label>
                 <textarea name="notes" value={form.notes} onChange={handleChange} rows={3} className="input-field resize-none" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-1.5">Update Prescription (optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*,application/pdf"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="block w-full text-sm text-slate-300
+                  file:mr-4 file:py-2.5 file:px-4
+                  file:rounded-xl file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-primary-900/50 file:text-primary-300
+                  hover:file:bg-primary-800/50
+                  border border-slate-700/50 rounded-2xl bg-slate-800/50 p-2 cursor-pointer transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50" />
+                <p className="text-xs text-slate-400 mt-1.5">Max 5MB. Leave blank to keep current file.</p>
               </div>
 
               <div className="flex gap-3 pt-2">

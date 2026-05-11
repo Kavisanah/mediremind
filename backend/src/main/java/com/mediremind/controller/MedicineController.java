@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import java.util.List;
 
 @RestController
@@ -75,5 +78,30 @@ public class MedicineController {
         medicineService.updatePrescriptionFile(id, fileName);
         return ResponseEntity
                 .ok(ApiResponse.success("Prescription uploaded successfully", fileName));
+    }
+
+    @GetMapping("/{id}/prescription")
+    public ResponseEntity<Resource> getPrescription(@PathVariable Long id) {
+        MedicineResponse medicine = medicineService.getMedicineById(id);
+        if (medicine.getPrescriptionFile() == null || medicine.getPrescriptionFile().isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Resource resource = fileStorageService.loadFileAsResource(medicine.getPrescriptionFile());
+        
+        // Try to guess content type
+        String contentType = "application/octet-stream";
+        if (medicine.getPrescriptionFile().toLowerCase().endsWith(".png")) {
+            contentType = "image/png";
+        } else if (medicine.getPrescriptionFile().toLowerCase().endsWith(".jpg") || medicine.getPrescriptionFile().toLowerCase().endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (medicine.getPrescriptionFile().toLowerCase().endsWith(".pdf")) {
+            contentType = "application/pdf";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }
