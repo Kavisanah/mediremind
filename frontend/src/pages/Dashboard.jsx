@@ -210,7 +210,7 @@ function Dashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-slide-up delay-5">
               {[
                 { href: '/medicines/add',    icon: '💊', label: 'Add Medicine',    color: 'bg-primary-950/40 hover:bg-primary-900/50 text-primary-400 border-primary-100' },
-                { href: '/appointments/add', icon: '📅', label: 'Book Appointment', color: 'bg-amber-950/40 hover:bg-amber-900/50 text-amber-400 border-amber-100' },
+                { href: '/appointments/add', icon: '📅', label: 'Add Appointment Reminder', color: 'bg-amber-950/40 hover:bg-amber-900/50 text-amber-400 border-amber-100' },
                 { href: '/history',          icon: '📋', label: 'Medicine History', color: 'bg-slate-900 hover:bg-slate-700 text-slate-300 border-slate-700' },
                 { href: '/observers',        icon: '🛡️', label: 'Manage Guardians', color: 'bg-lavender-50 hover:bg-lavender-100 text-lavender-700 border-lavender-100' },
               ].map(action => (

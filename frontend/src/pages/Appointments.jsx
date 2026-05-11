@@ -59,7 +59,7 @@ function Appointments() {
             <p className="text-slate-300 mt-2 font-medium">{appointments.length} appointment{appointments.length !== 1 ? 's' : ''} currently scheduled</p>
           </div>
           <Link to="/appointments/add" className="bg-amber-950/400 hover:bg-amber-600 text-white px-6 py-3 rounded-2xl font-bold shadow-md hover:shadow-lg transition-all duration-300 border border-amber-400">
-            + Book Appointment
+            + Add Appointment Reminder
           </Link>
         </div>
 

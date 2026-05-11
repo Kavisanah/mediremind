@@ -58,7 +58,7 @@ function AddAppointment() {
           <button onClick={() => navigate(-1)} className="text-sm font-bold text-slate-300 hover:text-slate-200 mb-4 flex items-center gap-1.5 transition-colors">
             <span className="text-lg">←</span> Back
           </button>
-          <h1 className="text-3xl md:text-4xl font-display font-extrabold text-slate-50 tracking-tight">Book Appointment</h1>
+          <h1 className="text-3xl md:text-4xl font-display font-extrabold text-slate-50 tracking-tight">Add Appointment Reminder</h1>
           <p className="text-slate-300 mt-2 font-medium text-lg">Schedule your next doctor visit.</p>
         </div>
 
@@ -95,7 +95,7 @@ function AddAppointment() {
                 min={todayMin()}
                 className="input-field"
               />
-              <p className="text-xs text-slate-300 mt-1">You can book appointments for today or any future date.</p>
+              <p className="text-xs text-slate-300 mt-1">You can add appointment reminders for today or any future date.</p>
             </div>
 
             <div>
@@ -108,7 +108,7 @@ function AddAppointment() {
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => navigate(-1)} className="btn-secondary flex-1">Cancel</button>
               <button type="submit" disabled={loading} className="btn-primary flex-1">
-                {loading ? 'Adding...' : 'Add Appointment'}
+                  {loading ? 'Adding...' : 'Add Reminder'}
               </button>
             </div>
           </form>
