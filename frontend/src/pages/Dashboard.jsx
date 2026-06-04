@@ -103,7 +103,7 @@ function Dashboard() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-bold text-amber-300 tracking-wide uppercase mb-1">AI Drug Interaction Warning</h3>
-              <p className="text-[13px] text-slate-200 leading-relaxed font-medium">{interactions}</p>
+              <p className="text-[13px] text-slate-200 leading-relaxed font-medium whitespace-pre-line">{interactions}</p>
             </div>
           </div>
         )}

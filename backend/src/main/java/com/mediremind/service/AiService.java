@@ -88,11 +88,11 @@ public class AiService {
         String medsList = String.join(", ", medicineNames);
 
         Map<String, Object> requestBody = Map.of(
-                "model", "llama3-8b-8192",
+                "model", "llama-3.1-8b-instant",
                 "messages", List.of(
                         Map.of(
                                 "role", "system",
-                                "content", "You are a clinical pharmacist assistant. Analyze a list of medications currently taken by a single patient for potential negative interactions. If any moderate or severe drug-drug interactions exist, write a concise, professional warning (2-3 sentences max) explaining the risk. If no significant interactions are found, respond with the exact word: 'NONE'. Do not include any other text."
+                                "content", "You are a clinical pharmacist assistant. Analyze a list of medications currently taken by a single patient for potential negative interactions. If any moderate or severe drug-drug interactions exist, write a concise, professional warning explaining the risks. If there are multiple interactions, format them using clean bullet points (starting with •). If no significant interactions are found, respond with the exact word: 'NONE'. Do not include any other text."
                         ),
                         Map.of(
                                 "role", "user",
@@ -112,7 +112,8 @@ public class AiService {
                     Map message = (Map) choices.get(0).get("message");
                     if (message != null) {
                         String content = ((String) message.get("content")).trim();
-                        if ("NONE".equalsIgnoreCase(content)) {
+                        String clean = content.replaceAll("[*._-]", "").trim();
+                        if ("NONE".equalsIgnoreCase(clean) || clean.toLowerCase().contains("no significant interaction") || clean.toLowerCase().contains("no interaction")) {
                             return "";
                         }
                         return content;
@@ -140,7 +141,7 @@ public class AiService {
         headers.setBearerAuth(groqApiKey);
 
         Map<String, Object> requestBody = Map.of(
-                "model", "llama3-8b-8192",
+                "model", "llama-3.1-8b-instant",
                 "messages", List.of(
                         Map.of(
                                 "role", "system",
