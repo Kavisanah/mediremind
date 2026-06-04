@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Guardian clicks this link from email — no JWT available
                         .requestMatchers("/api/observers/accept").permitAll()
+                        .requestMatchers("/api/jobs/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
