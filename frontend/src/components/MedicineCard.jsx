@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { formatDate, formatTime, frequencyLabel } from '../utils/helpers'
+import { Clock, Bot, FileText } from 'lucide-react'
 
 import api from '../api/axios'
 
@@ -36,7 +37,7 @@ function MedicineCard({ medicine, onDelete, onAiInfo }) {
         <div className="flex flex-wrap gap-2 mb-4 relative z-10">
           {medicine.reminderTimes.map((time, i) => (
             <span key={i} className="text-xs bg-primary-950/40 text-primary-400 border border-primary-100 px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1 shadow-sm">
-              <span className="text-[10px]">⏰</span> {formatTime(time)}
+              <Clock className="w-3 h-3 text-primary-400" /> {formatTime(time)}
             </span>
           ))}
         </div>
@@ -53,7 +54,7 @@ function MedicineCard({ medicine, onDelete, onAiInfo }) {
             onClick={() => onAiInfo(medicine.name)}
             className="w-full bg-gradient-to-r from-lavender-50 to-lavender-100 hover:from-lavender-100 hover:to-lavender-200 text-lavender-700 text-sm font-bold py-2.5 rounded-2xl transition-all duration-200 flex justify-center items-center gap-2 shadow-sm border border-lavender-200/50"
           >
-            🤖 AI Info
+            <Bot className="w-4 h-4 text-lavender-700" /> AI Guide
           </button>
         )}
 
@@ -62,7 +63,7 @@ function MedicineCard({ medicine, onDelete, onAiInfo }) {
             onClick={handleViewPrescription}
             className="w-full bg-slate-900 hover:bg-slate-700 text-slate-300 text-sm font-bold py-2.5 rounded-2xl transition-all duration-200 flex justify-center items-center gap-2 shadow-sm border border-slate-700"
           >
-            🖼️ View Prescription
+            <FileText className="w-4 h-4 text-slate-300" /> View Prescription
           </button>
         )}
         

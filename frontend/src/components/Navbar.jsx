@@ -1,13 +1,14 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import useAuth from '../hooks/useAuth'
+import { LayoutDashboard, Pill, Calendar, Shield, User, LogOut } from 'lucide-react'
 
 const navItems = [
-  { path: '/dashboard',    label: 'Dashboard',    icon: '⚡', color: 'text-primary-600' },
-  { path: '/medicines',    label: 'Medicines',    icon: '💊', color: 'text-sage-400' },
-  { path: '/appointments', label: 'Appointments', icon: '📅', color: 'text-amber-600' },
-  { path: '/observers',    label: 'Guardians',    icon: '🛡️', color: 'text-lavender-600' },
-  { path: '/profile',      label: 'Profile',      icon: '👤', color: 'text-slate-300' },
+  { path: '/dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
+  { path: '/medicines',    label: 'Medicines',    icon: Pill },
+  { path: '/appointments', label: 'Appointments', icon: Calendar },
+  { path: '/observers',    label: 'Guardians',    icon: Shield },
+  { path: '/profile',      label: 'Profile',      icon: User },
 ]
 
 function Navbar() {
@@ -29,10 +30,10 @@ function Navbar() {
 
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center gap-2.5 group flex-shrink-0">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center
                               bg-gradient-to-br from-primary-500 to-primary-700
                               shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-200">
-                💊
+                <Pill className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-bold text-slate-50"
                     style={{ fontFamily: 'Sora, sans-serif', letterSpacing: '-0.02em' }}>
@@ -47,7 +48,7 @@ function Navbar() {
                 return (
                   <Link key={item.path} to={item.path}
                     className={`nav-pill ${active ? 'active' : ''} text-[0.8125rem]`}>
-                    <span>{item.icon}</span>
+                    <item.icon className="w-4 h-4" />
                     {item.label}
                   </Link>
                 )
@@ -100,7 +101,7 @@ function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
                       ${active ? 'bg-primary-950/40 text-primary-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>
-                    <span className="text-base">{item.icon}</span>
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
                     {item.label}
                   </Link>
                 )
@@ -116,7 +117,7 @@ function Navbar() {
                 <button onClick={handleLogout}
                   className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl
                              text-sm font-medium text-coral-400 hover:bg-coral-950/40 transition-all">
-                  <span>🚪</span> Sign out
+                  <LogOut className="w-5 h-5 flex-shrink-0" /> Sign out
                 </button>
               </div>
             </div>
@@ -133,15 +134,13 @@ function Navbar() {
             const active = location.pathname.startsWith(item.path)
             return (
               <Link key={item.path} to={item.path}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium
+                className={`flex-1 flex flex-col items-center gap-1 py-2 text-[10px] font-medium
                             transition-all duration-200
-                            ${active ? 'text-primary-600' : 'text-slate-300'}`}>
-                <span className={`text-xl transition-transform duration-200 ${active ? 'scale-110' : ''}`}>
-                  {item.icon}
-                </span>
+                            ${active ? 'text-primary-400' : 'text-slate-400'}`}>
+                <item.icon className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110 text-primary-400' : 'text-slate-400'}`} />
                 {item.label}
                 {active && (
-                  <span className="w-1 h-1 rounded-full bg-primary-950/400 mt-0.5"/>
+                  <span className="w-1 h-1 rounded-full bg-primary-400 mt-0.5"/>
                 )}
               </Link>
             )

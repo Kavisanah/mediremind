@@ -3,12 +3,13 @@ import Navbar from '../components/Navbar'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ConfirmModal from '../components/ConfirmModal'
 import api from '../api/axios'
+import { Pill, AlertTriangle, Calendar, TrendingUp, Shield, Users, CheckCircle, Clock, Trash2 } from 'lucide-react'
 
 const NOTIFY_OPTIONS = [
-  { key: 'notifyMedicineReminder', label: 'Medicine reminders',  icon: '💊' },
-  { key: 'notifyMissedDose',       label: 'Missed dose alerts',  icon: '⚠️' },
-  { key: 'notifyAppointment',      label: 'Appointment reminders', icon: '📅' },
-  { key: 'notifyWeeklyReport',     label: 'Weekly reports',       icon: '📊' },
+  { key: 'notifyMedicineReminder', label: 'Medicine reminders',  icon: Pill },
+  { key: 'notifyMissedDose',       label: 'Missed dose alerts',  icon: AlertTriangle },
+  { key: 'notifyAppointment',      label: 'Appointment reminders', icon: Calendar },
+  { key: 'notifyWeeklyReport',     label: 'Weekly reports',       icon: TrendingUp },
 ]
 
 function StatusBadge({ status }) {
@@ -89,8 +90,8 @@ export default function ObserversPage() {
       <div className="bg-mesh-lavender border-b border-lavender-900/50 relative overflow-hidden">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 animate-slide-up">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-2xl bg-lavender-900/50 flex items-center justify-center text-xl">
-              🛡️
+            <div className="w-10 h-10 rounded-2xl bg-lavender-900/50 flex items-center justify-center text-slate-200">
+              <Shield className="w-5 h-5 text-lavender-400" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-50">Health Guardians</h1>
@@ -106,15 +107,15 @@ export default function ObserversPage() {
 
         {/* Alerts */}
         {successMsg && (
-          <div className="alert alert-success animate-fade-in">
-            <span>✅</span>
+          <div className="alert alert-success animate-fade-in flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-sage-600 flex-shrink-0" />
             <span>{successMsg}</span>
             <button onClick={() => setSuccessMsg('')} className="ml-auto text-sage-500 hover:text-sage-400 text-lg leading-none">×</button>
           </div>
         )}
         {errorMsg && (
-          <div className="alert alert-danger animate-fade-in">
-            <span>⚠️</span>
+          <div className="alert alert-danger animate-fade-in flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-coral-600 flex-shrink-0" />
             <span>{errorMsg}</span>
             <button onClick={() => setErrorMsg('')} className="ml-auto text-coral-500 hover:text-coral-700 text-lg leading-none">×</button>
           </div>
@@ -123,7 +124,7 @@ export default function ObserversPage() {
         {/* Explainer banner */}
         <div className="observer-card animate-slide-up">
           <div className="flex items-start gap-4">
-            <span className="text-3xl animate-float">👨‍👩‍👧</span>
+            <Users className="w-8 h-8 text-lavender-400 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-bold text-slate-200 mb-1">How Guardians Work</h3>
               <p className="text-sm text-slate-300 leading-relaxed">
@@ -198,7 +199,9 @@ export default function ObserversPage() {
                           </svg>
                         )}
                       </span>
-                      <span className="text-sm font-medium">{opt.icon} {opt.label}</span>
+                      <span className="text-sm font-medium flex items-center gap-1.5 select-none">
+                        <opt.icon className="w-4 h-4 text-lavender-700" /> {opt.label}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -220,8 +223,8 @@ export default function ObserversPage() {
 
         {/* Guardians list */}
         <div>
-          <h2 className="section-title mb-4">
-            🛡️ Your Guardians
+          <h2 className="section-title mb-4 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-lavender-400" /> Your Guardians
             {observers.length > 0 && (
               <span className="badge badge-lavender ml-2">{observers.length}</span>
             )}
@@ -229,7 +232,7 @@ export default function ObserversPage() {
 
           {observers.length === 0 ? (
             <div className="card flex flex-col items-center py-12 text-center animate-fade-in">
-              <span className="text-5xl mb-3 animate-float">🛡️</span>
+              <Shield className="w-12 h-12 text-slate-500 mb-3 animate-float" />
               <p className="font-semibold text-slate-300 mb-1">No guardians yet</p>
               <p className="text-sm text-slate-300">
                 Invite a family member or caregiver to keep them in the loop.
@@ -257,22 +260,22 @@ export default function ObserversPage() {
                     {obs.observerName && (
                       <p className="text-xs text-slate-300 mt-0.5">{obs.observerEmail}</p>
                     )}
-                    <p className="text-xs text-lavender-400 font-medium mt-1">
-                      👥 {obs.relationshipLabel}
+                    <p className="text-xs text-lavender-400 font-medium mt-1 flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" /> {obs.relationshipLabel}
                     </p>
-
+ 
                     {/* Notification chips */}
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {NOTIFY_OPTIONS.filter(o => obs[o.key]).map(o => (
-                        <span key={o.key} className="badge badge-lavender text-[10px]">
-                          {o.icon} {o.label}
+                        <span key={o.key} className="badge badge-lavender text-[10px] flex items-center gap-1">
+                          <o.icon className="w-3 h-3 text-lavender-400" /> {o.label}
                         </span>
                       ))}
                     </div>
-
+ 
                     {obs.status === 'PENDING' && (
-                      <p className="text-[11px] text-amber-600 mt-2 font-medium">
-                        ⏳ Waiting for them to accept the invite…
+                      <p className="text-[11px] text-amber-600 mt-2 font-medium flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> Waiting for them to accept the invite…
                       </p>
                     )}
                   </div>

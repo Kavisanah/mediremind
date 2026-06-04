@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Clock, CheckCircle } from 'lucide-react'
 
 const statusConfig = {
   TAKEN:   { dot: 'taken',   label: 'Taken',   badge: 'badge-sage',  bg: 'bg-sage-950/40/60' },
@@ -39,8 +40,8 @@ function TodayMedicineItem({ log, onMarkTaken }) {
           {log.dosage && (
             <span className="text-xs text-slate-300">{log.dosage}</span>
           )}
-          <span className="text-xs text-slate-300 font-mono">
-            🕐 {log.scheduledTime?.slice(11, 16)}
+          <span className="text-xs text-slate-300 flex items-center gap-1 font-mono">
+            <Clock className="w-3.5 h-3.5 text-slate-400" /> {log.scheduledTime?.slice(11, 16)}
           </span>
         </div>
       </div>
@@ -59,7 +60,7 @@ function TodayMedicineItem({ log, onMarkTaken }) {
       )}
 
       {(log.status === 'TAKEN' || done) && (
-        <span className="text-lg animate-bounce-soft">✅</span>
+        <CheckCircle className="w-5 h-5 text-sage-500 animate-bounce-soft flex-shrink-0" />
       )}
     </div>
   )

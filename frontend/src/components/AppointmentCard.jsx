@@ -1,4 +1,5 @@
 import { formatDateTime } from '../utils/helpers'
+import { MapPin, Clock } from 'lucide-react'
 
 const statusColors = {
   SCHEDULED: 'bg-primary-950/40 text-primary-400',
@@ -21,11 +22,13 @@ function AppointmentCard({ appointment, onDelete, onStatusChange }) {
       </div>
 
       {appointment.location && (
-        <p className="text-sm font-medium text-slate-300 mb-2 relative z-10">📍 {appointment.location}</p>
+        <p className="text-sm font-medium text-slate-300 mb-2 relative z-10 flex items-center gap-1">
+          <MapPin className="w-3.5 h-3.5 text-slate-400" /> {appointment.location}
+        </p>
       )}
 
-      <div className="text-sm font-medium text-slate-300 mb-6 bg-amber-950/40 text-amber-400 px-3 py-2 rounded-xl inline-block self-start relative z-10 border border-amber-100/50 shadow-sm">
-        <span className="text-[10px]">⏰</span> {formatDateTime(appointment.appointmentDate)}
+      <div className="text-sm font-medium text-slate-300 mb-6 bg-amber-950/40 text-amber-400 px-3 py-2 rounded-xl inline-block self-start relative z-10 border border-amber-100/50 shadow-sm flex items-center gap-1.5">
+        <Clock className="w-3.5 h-3.5 text-amber-400" /> {formatDateTime(appointment.appointmentDate)}
       </div>
 
       {appointment.notes && (

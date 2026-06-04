@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import LoadingSpinner from '../components/LoadingSpinner'
+import AdherenceHistoryChart from '../components/AdherenceHistoryChart'
 import { formatDateTime } from '../utils/helpers'
 import api from '../api/axios'
+import { ClipboardList, CheckCircle, XCircle, Calendar } from 'lucide-react'
 
 function MedicineHistory() {
   const [logs, setLogs] = useState([])
@@ -56,21 +58,25 @@ function MedicineHistory() {
           </div>
         </div>
 
-        {/* Stats */}
+         {/* Stats */}
         {!loading && logs.length > 0 && (
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="card text-center">
-              <p className="text-2xl font-bold text-sage-400">{taken}</p>
-              <p className="text-sm text-slate-300 mt-1">Taken</p>
+          <div className="space-y-6 mb-6">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="card text-center">
+                <p className="text-2xl font-bold text-sage-400">{taken}</p>
+                <p className="text-sm text-slate-300 mt-1">Taken</p>
+              </div>
+              <div className="card text-center">
+                <p className="text-2xl font-bold text-coral-500">{missed}</p>
+                <p className="text-sm text-slate-300 mt-1">Missed</p>
+              </div>
+              <div className="card text-center">
+                <p className="text-2xl font-bold text-primary-600">{rate}%</p>
+                <p className="text-sm text-slate-300 mt-1">Adherence</p>
+              </div>
             </div>
-            <div className="card text-center">
-              <p className="text-2xl font-bold text-coral-500">{missed}</p>
-              <p className="text-sm text-slate-300 mt-1">Missed</p>
-            </div>
-            <div className="card text-center">
-              <p className="text-2xl font-bold text-primary-600">{rate}%</p>
-              <p className="text-sm text-slate-300 mt-1">Adherence</p>
-            </div>
+
+            <AdherenceHistoryChart logs={logs} />
           </div>
         )}
 
@@ -87,18 +93,22 @@ function MedicineHistory() {
                       <p className="font-semibold text-slate-200 text-sm">{log.medicineName}</p>
                       <p className="text-xs text-slate-300 mt-0.5">{log.dosage} · {formatDateTime(log.scheduledTime)}</p>
                     </div>
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                     <span className={`text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 ${
                       log.status === 'TAKEN' ? 'bg-sage-900/50 text-sage-400' : 'bg-coral-900/50 text-coral-400'
                     }`}>
-                      {log.status === 'TAKEN' ? '✅ Taken' : '❌ Missed'}
+                      {log.status === 'TAKEN' ? (
+                        <><CheckCircle className="w-3.5 h-3.5" /> Taken</>
+                      ) : (
+                        <><XCircle className="w-3.5 h-3.5" /> Missed</>
+                      )}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <span className="text-5xl">📋</span>
-                <p className="text-slate-300 mt-3">No logs found for this period</p>
+               <div className="text-center py-12">
+                <ClipboardList className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                <p className="text-slate-300 mt-3 font-semibold">No logs found for this period</p>
               </div>
             )}
           </div>

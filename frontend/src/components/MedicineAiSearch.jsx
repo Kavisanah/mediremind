@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import api from '../api/axios';
+import { Bot, AlertTriangle, Pill } from 'lucide-react';
 
 export default function MedicineAiSearch({ initialMedicineName, onClose }) {
   const [query, setQuery] = useState(initialMedicineName || '');
@@ -68,8 +69,8 @@ export default function MedicineAiSearch({ initialMedicineName, onClose }) {
             ✕
           </button>
           
-          <div className="flex items-center gap-3 mb-1">
-            <span className="text-3xl filter drop-shadow-sm">🤖</span>
+          <div className="flex items-center gap-3 mb-1 text-slate-200">
+            <Bot className="w-8 h-8 text-primary-400" />
             <h2 className="text-2xl md:text-3xl font-display font-extrabold text-slate-200 tracking-tight">
               AI Medicine Guide
             </h2>
@@ -117,7 +118,7 @@ export default function MedicineAiSearch({ initialMedicineName, onClose }) {
 
           {error && (
             <div className="p-5 bg-coral-950/40 border border-coral-800/50 rounded-2xl text-coral-300 text-sm flex items-start gap-4 animate-fade-in shadow-sm">
-              <span className="text-2xl drop-shadow-sm">⚠️</span>
+              <AlertTriangle className="w-6 h-6 text-coral-400 flex-shrink-0 mt-0.5" />
               <div>
                 <strong className="block font-bold text-base mb-1">Error fetching information</strong>
                 {error}
@@ -133,7 +134,7 @@ export default function MedicineAiSearch({ initialMedicineName, onClose }) {
 
           {!loading && !error && !result && (
             <div className="h-full flex flex-col items-center justify-center text-center text-slate-300 py-12 animate-fade-in">
-              <span className="text-6xl mb-5 opacity-40 filter grayscale">💊</span>
+              <Pill className="w-16 h-16 text-slate-500 mb-5 opacity-40" />
               <p className="font-medium text-slate-300">Enter a medicine name and click search to see details.</p>
               <p className="text-xs mt-2 opacity-60">Powered by Meta Llama 3 via Groq</p>
             </div>

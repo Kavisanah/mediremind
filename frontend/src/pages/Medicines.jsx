@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { Search, Pill } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import MedicineCard from '../components/MedicineCard'
 import ConfirmModal from '../components/ConfirmModal'
@@ -62,7 +63,7 @@ function Medicines() {
           <>
             <div className="mb-8 relative max-w-xl">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <span className="text-slate-300">🔍</span>
+                <Search className="w-4 h-4 text-slate-400" />
               </div>
               <input 
                 type="text" 
@@ -85,7 +86,7 @@ function Medicines() {
               </div>
             ) : (
               <div className="text-center py-16 bg-slate-800/80 rounded-3xl border border-slate-800 shadow-sm mt-6">
-                <span className="text-5xl opacity-40 filter grayscale">🔍</span>
+                <Search className="w-12 h-12 text-slate-500 mx-auto mb-4" />
                 <p className="text-slate-300 mt-6 font-medium text-lg">No active medicines found matching "{search}"</p>
               </div>
             )}
@@ -93,7 +94,7 @@ function Medicines() {
         ) : (
           <div className="text-center py-24 bg-slate-800/80 rounded-[2rem] border border-slate-800 shadow-sm mt-4">
             <div className="w-24 h-24 bg-primary-950/40 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-5xl drop-shadow-sm">💊</span>
+              <Pill className="w-12 h-12 text-primary-400" />
             </div>
             <h3 className="text-2xl font-display font-bold text-slate-200">Your regimen is empty</h3>
             <p className="text-slate-300 mt-3 font-medium max-w-sm mx-auto">Start tracking your medication schedule to get timely reminders.</p>

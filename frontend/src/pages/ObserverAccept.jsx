@@ -3,10 +3,12 @@ import Navbar from '../components/Navbar'
 import StatCard from '../components/StatCard'
 import TodayMedicineItem from '../components/TodayMedicineItem'
 import AdherenceRing from '../components/AdherenceRing'
+import AdherenceChart from '../components/AdherenceChart'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { formatDateTime } from '../utils/helpers'
 import useAuth from '../hooks/useAuth'
 import api from '../api/axios'
+import { Pill, CheckCircle2, XCircle, Clock, TrendingUp, Calendar, Stethoscope, Sparkles, ClipboardList, Shield } from 'lucide-react'
 
 function getGreeting() {
   const h = new Date().getHours()
@@ -76,58 +78,41 @@ function Dashboard() {
 
         {dashboard && (
           <>
-            {/* ── Stat cards ── */}
+             {/* ── Stat cards ── */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="animate-slide-up delay-1">
-                <StatCard title="Total Medicines" value={dashboard.totalMedicines} icon="💊" color="primary" />
+                <StatCard title="Total Medicines" value={dashboard.totalMedicines} icon={<Pill className="w-5 h-5 text-primary-400" />} color="primary" />
               </div>
               <div className="animate-slide-up delay-2">
-                <StatCard title="Taken Today"     value={dashboard.todayTaken}     icon="✅" color="sage" />
+                <StatCard title="Taken Today"     value={dashboard.todayTaken}     icon={<CheckCircle2 className="w-5 h-5 text-sage-400" />} color="sage" />
               </div>
               <div className="animate-slide-up delay-3">
-                <StatCard title="Missed Today"    value={dashboard.todayMissed}    icon="❌" color="coral" />
+                <StatCard title="Missed Today"    value={dashboard.todayMissed}    icon={<XCircle className="w-5 h-5 text-coral-400" />} color="coral" />
               </div>
               <div className="animate-slide-up delay-4">
-                <StatCard title="Pending"         value={dashboard.todayPending}   icon="⏳" color="amber" />
+                <StatCard title="Pending"         value={dashboard.todayPending}   icon={<Clock className="w-5 h-5 text-amber-400" />} color="amber" />
               </div>
             </div>
 
             {/* ── Weekly summary + adherence ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-              {/* Adherence ring card */}
+               {/* Adherence ring card */}
               <div className="card animate-slide-up delay-2">
                 <div className="section-header">
-                  <h2 className="section-title">📊 Weekly Adherence</h2>
+                  <h2 className="section-title flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-primary-400" /> Weekly Adherence
+                  </h2>
                   <span className="badge badge-primary text-xs">This week</span>
                 </div>
-                <div className="flex items-center gap-8">
+                <div className="flex items-center gap-6">
                   <AdherenceRing
                     taken={dashboard.weeklyTaken}
                     total={weeklyTotal}
-                    size={130}
+                    size={120}
                   />
-                  <div className="space-y-4 flex-1">
-                    <div className="flex items-center justify-between py-2 border-b border-slate-800">
-                      <div className="flex items-center gap-2">
-                        <span className="status-dot taken" />
-                        <span className="text-sm text-slate-300">Taken</span>
-                      </div>
-                      <span className="text-base font-bold text-sage-400"
-                            style={{ fontFamily: 'Sora,sans-serif' }}>
-                        {dashboard.weeklyTaken}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="status-dot missed" />
-                        <span className="text-sm text-slate-300">Missed</span>
-                      </div>
-                      <span className="text-base font-bold text-coral-400"
-                            style={{ fontFamily: 'Sora,sans-serif' }}>
-                        {dashboard.weeklyMissed}
-                      </span>
-                    </div>
+                  <div className="flex-1">
+                    <AdherenceChart taken={dashboard.weeklyTaken} missed={dashboard.weeklyMissed} />
                   </div>
                 </div>
               </div>
@@ -135,7 +120,9 @@ function Dashboard() {
               {/* Upcoming appointments */}
               <div className="card animate-slide-up delay-3">
                 <div className="section-header">
-                  <h2 className="section-title">📅 Upcoming Appointments</h2>
+                  <h2 className="section-title flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-amber-400" /> Upcoming Appointments
+                  </h2>
                   <a href="/appointments" className="text-xs text-primary-600 hover:underline font-medium">
                     View all →
                   </a>
@@ -148,8 +135,8 @@ function Dashboard() {
                         className={`flex items-center gap-3 p-3 rounded-xl bg-amber-950/40/60
                                     border border-amber-100 animate-fade-in delay-${i + 1}`}>
                         <div className="w-9 h-9 rounded-xl bg-amber-900/50 flex items-center justify-center
-                                        text-lg flex-shrink-0">
-                          🩺
+                                        text-slate-200 flex-shrink-0">
+                          <Stethoscope className="w-4 h-4 text-amber-400" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-slate-200 truncate">
@@ -167,7 +154,7 @@ function Dashboard() {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center py-8 text-center">
-                    <span className="text-4xl mb-2 animate-float">📅</span>
+                    <Calendar className="w-10 h-10 text-slate-500 mb-2 animate-float" />
                     <p className="text-sm text-slate-300">No upcoming appointments</p>
                     <a href="/appointments/add" className="mt-3 text-xs text-primary-600 font-semibold hover:underline">
                       + Add appointment
@@ -180,7 +167,9 @@ function Dashboard() {
             {/* ── Today's schedule ── */}
             <div className="card animate-slide-up delay-4">
               <div className="section-header">
-                <h2 className="section-title">💊 Today's Schedule</h2>
+                <h2 className="section-title flex items-center gap-2">
+                  <Pill className="w-5 h-5 text-primary-400" /> Today's Schedule
+                </h2>
                 {dashboard.todayLogs?.length > 0 && (
                   <span className="text-xs text-slate-300">
                     {dashboard.todayTaken}/{dashboard.todayLogs.length} done
@@ -198,25 +187,25 @@ function Dashboard() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center py-10 text-center">
-                  <span className="text-5xl mb-3 animate-float">🎉</span>
+                  <Sparkles className="w-12 h-12 text-amber-400 mb-3 animate-float" />
                   <p className="text-sm font-semibold text-slate-300">All clear for today!</p>
                   <p className="text-xs text-slate-300 mt-1">No medicines scheduled right now.</p>
                 </div>
               )}
             </div>
 
-            {/* ── Quick actions ── */}
+             {/* ── Quick actions ── */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-slide-up delay-5">
               {[
-                { href: '/medicines/add',    icon: '💊', label: 'Add Medicine',    color: 'bg-primary-950/40 hover:bg-primary-900/50 text-primary-400 border-primary-100' },
-                { href: '/appointments/add', icon: '📅', label: 'Add Appointment Reminder', color: 'bg-amber-950/40 hover:bg-amber-900/50 text-amber-400 border-amber-100' },
-                { href: '/history',          icon: '📋', label: 'Medicine History', color: 'bg-slate-900 hover:bg-slate-700 text-slate-300 border-slate-700' },
-                { href: '/observers',        icon: '🛡️', label: 'Manage Guardians', color: 'bg-lavender-50 hover:bg-lavender-100 text-lavender-700 border-lavender-100' },
+                { href: '/medicines/add',    icon: <Pill className="w-5 h-5" />, label: 'Add Medicine',    color: 'bg-primary-950/40 hover:bg-primary-900/50 text-primary-400 border-primary-100' },
+                { href: '/appointments/add', icon: <Calendar className="w-5 h-5" />, label: 'Add Appointment Reminder', color: 'bg-amber-950/40 hover:bg-amber-900/50 text-amber-400 border-amber-100' },
+                { href: '/history',          icon: <ClipboardList className="w-5 h-5" />, label: 'Medicine History', color: 'bg-slate-900 hover:bg-slate-700 text-slate-300 border-slate-700' },
+                { href: '/observers',        icon: <Shield className="w-5 h-5" />, label: 'Manage Guardians', color: 'bg-lavender-50 hover:bg-lavender-100 text-lavender-700 border-lavender-100' },
               ].map(action => (
                 <a key={action.href} href={action.href}
                   className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl border
                               font-semibold text-sm transition-all duration-200 hover:shadow-sm ${action.color}`}>
-                  <span className="text-xl">{action.icon}</span>
+                  {action.icon}
                   {action.label}
                 </a>
               ))}

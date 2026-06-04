@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Trash2, HelpCircle } from 'lucide-react'
 
 // Supports both onCancel (used by Medicines.jsx) and onClose (used by Observers.jsx)
 // so you don't need to change any existing pages
@@ -28,10 +29,9 @@ function ConfirmModal({ isOpen, message, title, onConfirm, onCancel, onClose, co
       <div className="relative bg-slate-800/80 rounded-3xl shadow-2xl w-full max-w-sm p-7"
            onClick={e => e.stopPropagation()}>
 
-        {/* Icon */}
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-4
-                         ${danger ? 'bg-coral-950/40' : 'bg-amber-950/40'}`}>
-          {danger ? '🗑️' : '❓'}
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4
+                         ${danger ? 'bg-coral-950/40 text-coral-400' : 'bg-amber-950/40 text-amber-400'}`}>
+          {danger ? <Trash2 className="w-5 h-5" /> : <HelpCircle className="w-5 h-5" />}
         </div>
 
         {title && (

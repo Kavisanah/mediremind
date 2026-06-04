@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import api from '../api/axios'
 
@@ -56,7 +57,7 @@ function AddAppointment() {
       <main className="max-w-2xl mx-auto px-4 py-10 md:py-16 relative z-10">
         <div className="mb-8">
           <button onClick={() => navigate(-1)} className="text-sm font-bold text-slate-300 hover:text-slate-200 mb-4 flex items-center gap-1.5 transition-colors">
-            <span className="text-lg">←</span> Back
+            <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <h1 className="text-3xl md:text-4xl font-display font-extrabold text-slate-50 tracking-tight">Add Appointment Reminder</h1>
           <p className="text-slate-300 mt-2 font-medium text-lg">Schedule your next doctor visit.</p>
@@ -65,7 +66,7 @@ function AddAppointment() {
         <div className="card">
           {error && (
             <div className="bg-coral-950/40 border border-coral-800/50 text-coral-300 text-sm font-medium rounded-2xl px-5 py-4 mb-6 shadow-sm flex items-start gap-3">
-              <span className="text-xl drop-shadow-sm">⚠️</span> 
+              <AlertTriangle className="w-5 h-5 text-coral-400 flex-shrink-0 mt-0.5" /> 
               <div className="mt-0.5">{error}</div>
             </div>
           )}

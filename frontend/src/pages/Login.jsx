@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import useAuth from '../hooks/useAuth'
+import { Pill, AlertTriangle, Eye, EyeOff, ArrowRight } from 'lucide-react'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -43,8 +44,8 @@ export default function Login() {
         <div className="text-center mb-8 animate-slide-up">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl
                           bg-gradient-to-br from-primary-400 to-primary-700
-                          shadow-card-md mb-4 animate-float">
-            <span className="text-3xl">💊</span>
+                          shadow-card-md mb-4 animate-float text-white">
+            <Pill className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-slate-50">
             Medi<span className="text-gradient">Remind</span>
@@ -58,8 +59,8 @@ export default function Login() {
           <p className="text-sm text-slate-300 mb-6">Sign in to your account to continue</p>
 
           {error && (
-            <div className="alert alert-danger mb-5 animate-fade-in">
-              <span>⚠️</span> {error}
+            <div className="alert alert-danger mb-5 animate-fade-in flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-coral-600 flex-shrink-0" /> {error}
             </div>
           )}
 
@@ -81,7 +82,11 @@ export default function Login() {
                   onClick={() => setShowPwd(s => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300
                              hover:text-slate-300 transition-colors text-sm">
-                  {showPwd ? '🙈' : '👁️'}
+                  {showPwd ? (
+                    <EyeOff className="w-5 h-5 text-slate-400" />
+                  ) : (
+                    <Eye className="w-5 h-5 text-slate-400" />
+                  )}
                 </button>
               </div>
             </div>
@@ -93,7 +98,11 @@ export default function Login() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
-              ) : 'Sign in →'}
+              ) : (
+                <span className="flex items-center gap-2">
+                  Sign in <ArrowRight className="w-4 h-4" />
+                </span>
+              )}
             </button>
           </form>
 

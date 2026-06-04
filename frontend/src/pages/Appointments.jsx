@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Calendar } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import AppointmentCard from '../components/AppointmentCard'
 import ConfirmModal from '../components/ConfirmModal'
@@ -77,7 +78,7 @@ function Appointments() {
         ) : (
           <div className="text-center py-24 bg-slate-800/80 rounded-[2rem] border border-slate-800 shadow-sm mt-4">
             <div className="w-24 h-24 bg-amber-950/40 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-5xl drop-shadow-sm">📅</span>
+              <Calendar className="w-12 h-12 text-amber-500" />
             </div>
             <h3 className="text-2xl font-display font-bold text-slate-200">No appointments yet</h3>
             <p className="text-slate-300 mt-3 font-medium max-w-sm mx-auto">Keep track of your doctor visits and schedule your next appointment.</p>
