@@ -28,6 +28,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/mediremind?allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       # Note: For production, these should be passed in via an .env file, not hardcoded here!
 
   frontend:

@@ -21,4 +21,9 @@ public class AppConfig {
     ) throws Exception {
         return config.getAuthenticationManager();
     }
+
+    @Bean
+    public org.springframework.web.client.RestTemplate restTemplate() {
+        return new org.springframework.web.client.RestTemplate();
+    }
 }

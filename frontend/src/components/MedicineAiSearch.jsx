@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import api from '../api/axios';
 
 export default function MedicineAiSearch({ initialMedicineName, onClose }) {
   const [query, setQuery] = useState(initialMedicineName || '');
@@ -13,39 +14,14 @@ export default function MedicineAiSearch({ initialMedicineName, onClose }) {
     setError('');
 
     try {
-      const apikey = import.meta.env.VITE_GROQ_API_KEY;
-      if (!apikey) {
-        throw new Error("Missing VITE_GROQ_API_KEY. Please add it to your .env file.");
+      const response = await api.get(`/ai/medicine-info?medicineName=${encodeURIComponent(query)}`);
+      if (response.data && response.data.success) {
+        setResult(response.data.data);
+      } else {
+        throw new Error(response.data?.message || "Failed to fetch information from AI.");
       }
-
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apikey}`
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a medical information assistant. When given a medicine name, respond with a structured summary covering: what it is used for, common dosages, how to take it (with/without food etc), common side effects, important warnings, and drug interactions to be aware of. Keep the response clear and concise. Always end with: "⚠️ Always consult your doctor or pharmacist before starting, stopping or changing any medicine." Format using short paragraphs with emoji section headers.'
-            },
-            { role: 'user', content: `Tell me about the medicine: ${query}` }
-          ],
-          max_tokens: 1024
-        })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || "Failed to fetch information from AI.");
-      }
-
-      const data = await response.json();
-      setResult(data.choices[0].message.content);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || "Failed to fetch information from AI.");
     } finally {
       setLoading(false);
     }
@@ -159,7 +135,7 @@ export default function MedicineAiSearch({ initialMedicineName, onClose }) {
             <div className="h-full flex flex-col items-center justify-center text-center text-slate-300 py-12 animate-fade-in">
               <span className="text-6xl mb-5 opacity-40 filter grayscale">💊</span>
               <p className="font-medium text-slate-300">Enter a medicine name and click search to see details.</p>
-              <p className="text-xs mt-2 opacity-60">Powered by Anthropic Claude</p>
+              <p className="text-xs mt-2 opacity-60">Powered by Meta Llama 3 via Groq</p>
             </div>
           )}
         </div>

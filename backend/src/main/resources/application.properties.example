@@ -42,7 +42,8 @@ file.upload.dir=${FILE_UPLOAD_DIR:uploads/prescriptions}
 
 logging.level.com.mediremind=DEBUG
 
-# --- Guardian Invite Email URL ---
-# Set to your Railway backend URL after deployment
-# e.g. https://mediremind-backend.up.railway.app
 app.backend-url=${APP_BACKEND_URL:http://localhost:8080}
+
+# --- Groq AI Key ---
+groq.api.key=${GROQ_API_KEY}
+
