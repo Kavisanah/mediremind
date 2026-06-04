@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Sparkles } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import api from '../api/axios'
 
@@ -23,8 +23,31 @@ function AddMedicine() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [file, setFile] = useState(null)
+  const [aiInstruction, setAiInstruction] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+
+  const handleAiParseSchedule = async () => {
+    if (!aiInstruction.trim()) return
+    setAiLoading(true)
+    setAiError('')
+    try {
+      const res = await api.get('/ai/parse-schedule', {
+        params: { instruction: aiInstruction }
+      })
+      if (res.data && res.data.data) {
+        setForm(prev => ({ ...prev, reminderTimes: res.data.data }))
+      } else {
+        setAiError('Failed to parse schedule times.')
+      }
+    } catch (err) {
+      setAiError(err.response?.data?.message || 'Error parsing schedule.')
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   const addReminderTime = () => {
     setForm({ ...form, reminderTimes: [...form.reminderTimes, '08:00'] })
@@ -125,6 +148,36 @@ function AddMedicine() {
                 <input type="date" name="endDate" value={form.endDate} onChange={handleChange}
                   className="input-field" />
               </div>
+            </div>
+
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-primary-400" />
+                <span className="text-sm font-semibold text-slate-200">AI Smart Scheduler</span>
+              </div>
+              <p className="text-xs text-slate-400 mb-3">
+                Type natural schedule details (e.g. "three times a day starting at 9am", "every 8 hours") to generate reminder times automatically.
+              </p>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={aiInstruction} 
+                  onChange={(e) => setAiInstruction(e.target.value)}
+                  placeholder="e.g. morning, afternoon, and night" 
+                  className="input-field flex-1"
+                />
+                <button 
+                  type="button" 
+                  onClick={handleAiParseSchedule}
+                  disabled={aiLoading || !aiInstruction.trim()}
+                  className="btn-primary py-2 px-4 text-xs font-semibold whitespace-nowrap"
+                >
+                  {aiLoading ? 'Generating...' : 'Generate Times'}
+                </button>
+              </div>
+              {aiError && (
+                <p className="text-xs text-coral-400 mt-1.5">{aiError}</p>
+              )}
             </div>
 
             <div>

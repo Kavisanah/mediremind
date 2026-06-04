@@ -76,4 +76,21 @@ public class AiControllerTest {
                 .andExpect(jsonPath("$.message").value("Drug interactions checked successfully"))
                 .andExpect(jsonPath("$.data").value("No severe interactions."));
     }
+
+    @Test
+    public void testParseSchedule_Success() throws Exception {
+        String instruction = "twice a day";
+        List<String> expectedTimes = List.of("08:00", "20:00");
+
+        when(aiService.parseSchedule(instruction)).thenReturn(expectedTimes);
+
+        mockMvc.perform(get("/api/ai/parse-schedule")
+                .param("instruction", instruction)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Schedule parsed successfully by AI"))
+                .andExpect(jsonPath("$.data[0]").value("08:00"))
+                .andExpect(jsonPath("$.data[1]").value("20:00"));
+    }
 }

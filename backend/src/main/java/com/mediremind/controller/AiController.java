@@ -40,4 +40,10 @@ public class AiController {
         String result = aiService.checkInteractions(activeMeds);
         return ResponseEntity.ok(ApiResponse.success("Drug interactions checked successfully", result));
     }
+
+    @GetMapping("/parse-schedule")
+    public ResponseEntity<ApiResponse<List<String>>> parseSchedule(@RequestParam String instruction) {
+        List<String> times = aiService.parseSchedule(instruction);
+        return ResponseEntity.ok(ApiResponse.success("Schedule parsed successfully by AI", times));
+    }
 }

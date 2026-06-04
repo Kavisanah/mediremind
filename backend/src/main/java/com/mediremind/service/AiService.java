@@ -1,5 +1,6 @@
 package com.mediremind.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -121,6 +123,59 @@ public class AiService {
         } catch (Exception e) {
             log.error("Error calling Groq API for interactions", e);
             throw new RuntimeException("Failed to check interactions: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> parseSchedule(String instruction) {
+        if (groqApiKey == null || groqApiKey.trim().isEmpty()) {
+            throw new IllegalStateException("Groq API key is not configured on the server.");
+        }
+        if (instruction == null || instruction.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(groqApiKey);
+
+        Map<String, Object> requestBody = Map.of(
+                "model", "llama3-8b-8192",
+                "messages", List.of(
+                        Map.of(
+                                "role", "system",
+                                "content", "You are an expert medical scheduler. Convert a natural language instruction (e.g. 'twice a day: morning and night') into a JSON array of times in 24-hour HH:mm format (e.g. ['08:00', '20:00']). The output must be EXACTLY a valid JSON array of strings and nothing else. Do not include markdown code block formatting (like ```json), explanations, or any other text. Example Output: [\"08:00\", \"20:00\"]"
+                        ),
+                        Map.of(
+                                "role", "user",
+                                "content", "Convert this instruction to times: " + instruction
+                        )
+                ),
+                "max_tokens", 256
+        );
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(GROQ_API_URL, entity, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                List<Map> choices = (List<Map>) response.getBody().get("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    Map message = (Map) choices.get(0).get("message");
+                    if (message != null) {
+                        String content = ((String) message.get("content")).trim();
+                        if (content.startsWith("```")) {
+                            content = content.replaceAll("```json", "").replaceAll("```", "").trim();
+                        }
+                        ObjectMapper mapper = new ObjectMapper();
+                        return mapper.readValue(content, List.class);
+                    }
+                }
+            }
+            throw new RuntimeException("Empty or invalid response from Groq API");
+        } catch (Exception e) {
+            log.error("Error calling Groq API for schedule parsing", e);
+            throw new RuntimeException("Failed to parse schedule with AI: " + e.getMessage());
         }
     }
 }
