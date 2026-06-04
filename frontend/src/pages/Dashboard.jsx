@@ -8,7 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import { formatDateTime } from '../utils/helpers'
 import useAuth from '../hooks/useAuth'
 import api from '../api/axios'
-import { Pill, CheckCircle2, XCircle, Clock, TrendingUp, Calendar, Stethoscope, Sparkles, ClipboardList, Shield } from 'lucide-react'
+import { Pill, CheckCircle2, XCircle, Clock, TrendingUp, Calendar, Stethoscope, Sparkles, ClipboardList, Shield, AlertTriangle } from 'lucide-react'
 
 function getGreeting() {
   const h = new Date().getHours()
@@ -22,6 +22,8 @@ function Dashboard() {
   const [dashboard, setDashboard] = useState(null)
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState('')
+  const [interactions, setInteractions] = useState('')
+  const [loadingInteractions, setLoadingInteractions] = useState(false)
 
   const fetchDashboard = async () => {
     try {
@@ -34,12 +36,28 @@ function Dashboard() {
     }
   }
 
-  useEffect(() => { fetchDashboard() }, [])
+  const fetchInteractions = async () => {
+    setLoadingInteractions(true)
+    try {
+      const res = await api.get('/ai/check-interactions')
+      setInteractions(res.data.data || '')
+    } catch (err) {
+      console.error('Failed to check interactions:', err)
+    } finally {
+      setLoadingInteractions(false)
+    }
+  }
+
+  useEffect(() => { 
+    fetchDashboard()
+    fetchInteractions()
+  }, [])
 
   const handleMarkTaken = async logId => {
     try {
       await api.put(`/logs/${logId}/taken`)
       fetchDashboard()
+      fetchInteractions() // Refresh interactions if logs modify active state
     } catch {
       alert('Failed to mark medicine as taken')
     }
@@ -74,6 +92,19 @@ function Dashboard() {
         {error && (
           <div className="alert alert-danger animate-fade-in">
             <span>⚠️</span> {error}
+          </div>
+        )}
+
+        {interactions && (
+          <div className="bg-gradient-to-r from-amber-950/40 to-orange-950/40 border border-amber-500/20 p-5 rounded-2xl animate-slide-up flex gap-4 items-start shadow-md relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 animate-pulse" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-bold text-amber-300 tracking-wide uppercase mb-1">AI Drug Interaction Warning</h3>
+              <p className="text-[13px] text-slate-200 leading-relaxed font-medium">{interactions}</p>
+            </div>
           </div>
         )}
 

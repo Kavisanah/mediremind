@@ -3,6 +3,8 @@ package com.mediremind.controller;
 import com.mediremind.service.AiService;
 import com.mediremind.security.JwtUtil;
 import com.mediremind.security.CustomUserDetailsService;
+import com.mediremind.security.SecurityUtils;
+import com.mediremind.repository.MedicineRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +17,11 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.mediremind.model.User;
+import com.mediremind.model.Medicine;
+import java.util.List;
+import java.util.Collections;
+
 @WebMvcTest(controllers = AiController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class AiControllerTest {
@@ -24,6 +31,12 @@ public class AiControllerTest {
 
     @MockBean
     private AiService aiService;
+
+    @MockBean
+    private SecurityUtils securityUtils;
+
+    @MockBean
+    private MedicineRepository medicineRepository;
 
     @MockBean
     private JwtUtil jwtUtil;
@@ -45,5 +58,22 @@ public class AiControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("AI info retrieved successfully"))
                 .andExpect(jsonPath("$.data").value(expectedInfo));
+    }
+
+    @Test
+    public void testCheckInteractions_Success() throws Exception {
+        User user = User.builder().id(1L).email("john@example.com").name("John Doe").build();
+        Medicine medicine = Medicine.builder().id(2L).name("Aspirin").user(user).build();
+
+        when(securityUtils.getCurrentUser()).thenReturn(user);
+        when(medicineRepository.findByUserIdAndIsActiveTrue(user.getId())).thenReturn(List.of(medicine));
+        when(aiService.checkInteractions(List.of("Aspirin"))).thenReturn("No severe interactions.");
+
+        mockMvc.perform(get("/api/ai/check-interactions")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Drug interactions checked successfully"))
+                .andExpect(jsonPath("$.data").value("No severe interactions."));
     }
 }

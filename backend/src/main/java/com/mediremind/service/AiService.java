@@ -69,4 +69,58 @@ public class AiService {
             throw new RuntimeException("Failed to fetch medicine info from AI: " + e.getMessage());
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public String checkInteractions(List<String> medicineNames) {
+        if (groqApiKey == null || groqApiKey.trim().isEmpty()) {
+            throw new IllegalStateException("Groq API key is not configured on the server.");
+        }
+        if (medicineNames == null || medicineNames.size() < 2) {
+            return "";
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(groqApiKey);
+
+        String medsList = String.join(", ", medicineNames);
+
+        Map<String, Object> requestBody = Map.of(
+                "model", "llama3-8b-8192",
+                "messages", List.of(
+                        Map.of(
+                                "role", "system",
+                                "content", "You are a clinical pharmacist assistant. Analyze a list of medications currently taken by a single patient for potential negative interactions. If any moderate or severe drug-drug interactions exist, write a concise, professional warning (2-3 sentences max) explaining the risk. If no significant interactions are found, respond with the exact word: 'NONE'. Do not include any other text."
+                        ),
+                        Map.of(
+                                "role", "user",
+                                "content", "Check interactions for these medicines: " + medsList
+                        )
+                ),
+                "max_tokens", 256
+        );
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(GROQ_API_URL, entity, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                List<Map> choices = (List<Map>) response.getBody().get("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    Map message = (Map) choices.get(0).get("message");
+                    if (message != null) {
+                        String content = ((String) message.get("content")).trim();
+                        if ("NONE".equalsIgnoreCase(content)) {
+                            return "";
+                        }
+                        return content;
+                    }
+                }
+            }
+            throw new RuntimeException("Empty or invalid response from Groq API");
+        } catch (Exception e) {
+            log.error("Error calling Groq API for interactions", e);
+            throw new RuntimeException("Failed to check interactions: " + e.getMessage());
+        }
+    }
 }
