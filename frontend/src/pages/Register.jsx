@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { Pill, AlertTriangle } from 'lucide-react'
+import { extractErrorMessage } from '../utils/helpers'
 
 function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' })
@@ -19,7 +20,7 @@ function Register() {
       await api.post('/auth/register', form)
       navigate('/login')
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Try again.')
+      setError(extractErrorMessage(err, 'Registration failed. Try again.'))
     } finally {
       setLoading(false)
     }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, Sparkles } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import { extractErrorMessage } from '../utils/helpers'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../api/axios'
 
@@ -101,7 +102,7 @@ function EditMedicine() {
 
       navigate('/medicines')
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update medicine')
+      setError(extractErrorMessage(err, 'Failed to update medicine'))
     } finally {
       setSaving(false)
     }

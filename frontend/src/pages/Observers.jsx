@@ -4,6 +4,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import ConfirmModal from '../components/ConfirmModal'
 import api from '../api/axios'
 import { Pill, AlertTriangle, Calendar, TrendingUp, Shield, Users, CheckCircle, Clock, Trash2 } from 'lucide-react'
+import { extractErrorMessage } from '../utils/helpers'
 
 const NOTIFY_OPTIONS = [
   { key: 'notifyMedicineReminder', label: 'Medicine reminders',  icon: Pill },
@@ -64,7 +65,7 @@ export default function ObserversPage() {
                 notifyMissedDose: true, notifyAppointment: true, notifyWeeklyReport: true })
       fetchObservers()
     } catch (err) {
-      setErrorMsg(err?.response?.data?.message || 'Failed to send invite.')
+      setErrorMsg(extractErrorMessage(err, 'Failed to send invite.'))
     } finally {
       setSaving(false)
     }

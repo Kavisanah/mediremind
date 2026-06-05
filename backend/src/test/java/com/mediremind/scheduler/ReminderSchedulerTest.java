@@ -8,6 +8,7 @@ import com.mediremind.repository.AppointmentRepository;
 import com.mediremind.repository.MedicineLogRepository;
 import com.mediremind.repository.MedicineRepository;
 import com.mediremind.repository.MedicineScheduleRepository;
+import com.mediremind.service.AiService;
 import com.mediremind.service.EmailService;
 import com.mediremind.service.ObserverService;
 import com.mediremind.service.ObserverService.NotifyType;
@@ -48,6 +49,9 @@ public class ReminderSchedulerTest {
 
     @Mock
     private ObserverService observerService;
+
+    @Mock
+    private AiService aiService;
 
     @InjectMocks
     private ReminderScheduler reminderScheduler;
@@ -174,13 +178,15 @@ public class ReminderSchedulerTest {
                 .thenReturn(2L);
         when(observerService.getObserverEmailsForPatient(anyLong(), any(NotifyType.class)))
                 .thenReturn(List.of("guardian@example.com"));
+        when(aiService.generateCoachingTip(eq("John Doe"), eq(5L), eq(2L)))
+                .thenReturn("Great job on your adherence this week, John Doe!");
 
         // Act
         reminderScheduler.sendWeeklyReports();
 
         // Assert
-        verify(emailService, times(1)).sendWeeklyReport(eq("john@example.com"), eq("John Doe"), eq(5L), eq(2L));
-        verify(emailService, times(1)).sendObserverWeeklyReport(eq(List.of("guardian@example.com")), eq("John Doe"), eq(5L), eq(2L));
+        verify(emailService, times(1)).sendWeeklyReport(eq("john@example.com"), eq("John Doe"), eq(5L), eq(2L), eq("Great job on your adherence this week, John Doe!"));
+        verify(emailService, times(1)).sendObserverWeeklyReport(eq(List.of("guardian@example.com")), eq("John Doe"), eq(5L), eq(2L), eq("Great job on your adherence this week, John Doe!"));
     }
 
     @Test

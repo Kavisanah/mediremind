@@ -14,6 +14,8 @@ import MedicineHistory  from './pages/MedicineHistory'
 import Profile          from './pages/Profile'
 import Observers        from './pages/Observers'
 import ObserverAccept  from './pages/ObserverAccept'  // ← public, no login needed
+import ForgotPassword   from './pages/ForgotPassword'
+import ResetPassword    from './pages/ResetPassword'
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           {/* Public */}
           <Route path="/login"           element={<Login />} />
           <Route path="/register"        element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password"  element={<ResetPassword />} />
           <Route path="/observer/accept" element={<ObserverAccept />} />  {/* ← invite link */}
 
           {/* Protected */}

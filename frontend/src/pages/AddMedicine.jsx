@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, Sparkles } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import { extractErrorMessage } from '../utils/helpers'
 import api from '../api/axios'
 
 const frequencies = [
@@ -84,7 +85,7 @@ function AddMedicine() {
 
       navigate('/medicines')
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add medicine')
+      setError(extractErrorMessage(err, 'Failed to add medicine'))
     } finally {
       setLoading(false)
     }

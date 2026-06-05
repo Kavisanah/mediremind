@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import useAuth from '../hooks/useAuth'
 import { Pill, AlertTriangle, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { extractErrorMessage } from '../utils/helpers'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -23,7 +24,7 @@ export default function Login() {
       login(res.data.data, res.data.data.token)   // AuthContext expects (userData, jwtToken)
       navigate('/dashboard')
     } catch (err) {
-      setError(err?.response?.data?.message || 'Invalid email or password.')
+      setError(extractErrorMessage(err, 'Invalid email or password.'))
     } finally {
       setLoading(false)
     }
@@ -73,7 +74,12 @@ export default function Login() {
             </div>
 
             <div className="input-group">
-              <label className="input-label">Password</label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="input-label mb-0">Password</label>
+                <Link to="/forgot-password" className="text-xs text-primary-600 font-semibold hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <input type={showPwd ? 'text' : 'password'} name="password" required
                   className="input-field pr-11" placeholder="••••••••"

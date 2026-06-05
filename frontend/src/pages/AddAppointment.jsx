@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import api from '../api/axios'
+import { extractErrorMessage } from '../utils/helpers'
 
 function AddAppointment() {
   const navigate = useNavigate()
@@ -41,7 +42,7 @@ function AddAppointment() {
       })
       navigate('/appointments')
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add appointment')
+      setError(extractErrorMessage(err, 'Failed to add appointment'))
     } finally {
       setLoading(false)
     }

@@ -41,3 +41,14 @@ export const frequencyLabel = (freq) => {
   }
   return map[freq] || freq
 }
+
+export const extractErrorMessage = (err, defaultMsg) => {
+  const resData = err.response?.data
+  if (resData) {
+    if (resData.message === "Validation failed" && resData.data) {
+      return Object.values(resData.data).join('. ')
+    }
+    return resData.message || defaultMsg
+  }
+  return defaultMsg
+}

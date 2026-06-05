@@ -1,7 +1,9 @@
 package com.mediremind.service;
 
+import com.mediremind.dto.request.ForgotPasswordRequest;
 import com.mediremind.dto.request.LoginRequest;
 import com.mediremind.dto.request.RegisterRequest;
+import com.mediremind.dto.request.ResetPasswordRequest;
 import com.mediremind.dto.response.AuthResponse;
 import com.mediremind.model.User;
 import com.mediremind.repository.UserRepository;
@@ -21,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -67,5 +70,36 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();
+    }
+
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (user == null) {
+            return;
+        }
+
+        String token = java.util.UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(1));
+        userRepository.save(user);
+
+        String resetUrl = "http://localhost:5173/reset-password?token=" + token;
+        emailService.sendPasswordResetEmail(user.getEmail(), user.getName(), resetUrl);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByResetToken(request.getToken())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
+
+        if (user.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalArgumentException("Reset token has expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
     }
 }

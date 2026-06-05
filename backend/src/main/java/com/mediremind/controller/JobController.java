@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/jobs")
-@Profile({"default", "dev"})
+@Profile({ "default", "dev" })
 public class JobController {
 
     private final ReminderScheduler reminderScheduler;
@@ -35,5 +35,11 @@ public class JobController {
     public ResponseEntity<ApiResponse<String>> triggerMissedDoses() {
         reminderScheduler.sendMissedDoseAlerts();
         return ResponseEntity.ok(ApiResponse.success("Missed dose alerts checking & dispatch completed", null));
+    }
+
+    @PostMapping("/trigger-weekly-reports")
+    public ResponseEntity<ApiResponse<String>> triggerWeeklyReports() {
+        reminderScheduler.sendWeeklyReports();
+        return ResponseEntity.ok(ApiResponse.success("Weekly reports generation & dispatch completed", null));
     }
 }

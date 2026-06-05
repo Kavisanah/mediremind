@@ -12,6 +12,7 @@ import com.mediremind.repository.MedicineScheduleRepository;
 import com.mediremind.service.EmailService;
 import com.mediremind.service.ObserverService;
 import com.mediremind.service.ObserverService.NotifyType;
+import com.mediremind.service.AiService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,25 +28,28 @@ import java.util.List;
 public class ReminderScheduler {
 
     private final MedicineScheduleRepository medicineScheduleRepository;
-    private final MedicineLogRepository      medicineLogRepository;
-    private final MedicineRepository         medicineRepository;
-    private final AppointmentRepository      appointmentRepository;
-    private final EmailService               emailService;
-    private final ObserverService            observerService;
+    private final MedicineLogRepository medicineLogRepository;
+    private final MedicineRepository medicineRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final EmailService emailService;
+    private final ObserverService observerService;
+    private final AiService aiService;
 
     public ReminderScheduler(
             MedicineScheduleRepository medicineScheduleRepository,
-            MedicineLogRepository      medicineLogRepository,
-            MedicineRepository         medicineRepository,
-            AppointmentRepository      appointmentRepository,
-            EmailService               emailService,
-            ObserverService            observerService) {
+            MedicineLogRepository medicineLogRepository,
+            MedicineRepository medicineRepository,
+            AppointmentRepository appointmentRepository,
+            EmailService emailService,
+            ObserverService observerService,
+            AiService aiService) {
         this.medicineScheduleRepository = medicineScheduleRepository;
-        this.medicineLogRepository      = medicineLogRepository;
-        this.medicineRepository         = medicineRepository;
-        this.appointmentRepository      = appointmentRepository;
-        this.emailService               = emailService;
-        this.observerService            = observerService;
+        this.medicineLogRepository = medicineLogRepository;
+        this.medicineRepository = medicineRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.emailService = emailService;
+        this.observerService = observerService;
+        this.aiService = aiService;
     }
 
     // ── Medicine reminders (every minute) ────────────────────────────────
@@ -53,13 +57,13 @@ public class ReminderScheduler {
     @Scheduled(fixedRate = 60000)
     @Transactional
     public void sendMedicineReminders() {
-        LocalTime      now           = LocalTime.now().withSecond(0).withNano(0);
-        LocalDateTime  scheduledTime = LocalDateTime.now().withSecond(0).withNano(0);
+        LocalTime now = LocalTime.now().withSecond(0).withNano(0);
+        LocalDateTime scheduledTime = LocalDateTime.now().withSecond(0).withNano(0);
 
         List<MedicineSchedule> schedules = medicineScheduleRepository.findSchedulesDueAt(now);
 
         for (MedicineSchedule schedule : schedules) {
-            Long userId     = schedule.getMedicine().getUser().getId();
+            Long userId = schedule.getMedicine().getUser().getId();
             Long medicineId = schedule.getMedicine().getId();
 
             boolean alreadyLogged = medicineLogRepository
@@ -74,10 +78,10 @@ public class ReminderScheduler {
                         .build());
 
                 String patientEmail = schedule.getMedicine().getUser().getEmail();
-                String patientName  = schedule.getMedicine().getUser().getName();
-                String medName      = schedule.getMedicine().getName();
-                String dosage       = schedule.getMedicine().getDosage();
-                String notes        = schedule.getMedicine().getNotes();
+                String patientName = schedule.getMedicine().getUser().getName();
+                String medName = schedule.getMedicine().getName();
+                String dosage = schedule.getMedicine().getDosage();
+                String notes = schedule.getMedicine().getNotes();
 
                 // notify patient
                 emailService.sendMedicineReminder(
@@ -99,7 +103,7 @@ public class ReminderScheduler {
     // ── Missed-dose alert (runs 30 minutes after each hour) ───────────────
     // Finds logs that are still MISSED and are 30+ minutes old.
 
-    @Scheduled(cron = "0 30 * * * *")   // :30 of every hour
+    @Scheduled(cron = "0 30 * * * *") // :30 of every hour
     @Transactional
     public void sendMissedDoseAlerts() {
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(30);
@@ -108,7 +112,7 @@ public class ReminderScheduler {
                 .findMissedLogsOlderThan(cutoff);
 
         for (MedicineLog log : missedLogs) {
-            Long   userId      = log.getMedicine().getUser().getId();
+            Long userId = log.getMedicine().getUser().getId();
             String patientName = log.getMedicine().getUser().getName();
 
             List<String> observerEmails = observerService
@@ -120,8 +124,7 @@ public class ReminderScheduler {
                         patientName,
                         log.getMedicine().getName(),
                         log.getMedicine().getDosage(),
-                        log.getScheduledTime().toString()
-                );
+                        log.getScheduledTime().toString());
             }
 
             // Always mark as alerted so this log is never processed again
@@ -136,15 +139,15 @@ public class ReminderScheduler {
     @Transactional
     public void sendAppointmentReminders() {
         LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end   = LocalDateTime.now().plusDays(1);
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
 
         List<Appointment> appointments = appointmentRepository
                 .findAppointmentsForReminder(start, end, AppointmentStatus.SCHEDULED);
 
         for (Appointment apt : appointments) {
             String patientEmail = apt.getUser().getEmail();
-            String patientName  = apt.getUser().getName();
-            Long   userId       = apt.getUser().getId();
+            String patientName = apt.getUser().getName();
+            Long userId = apt.getUser().getId();
 
             // notify patient
             emailService.sendAppointmentReminder(
@@ -174,27 +177,35 @@ public class ReminderScheduler {
     @Transactional
     public void sendWeeklyReports() {
         LocalDateTime weekStart = LocalDateTime.now().minusDays(7);
-        LocalDateTime weekEnd   = LocalDateTime.now();
+        LocalDateTime weekEnd = LocalDateTime.now();
 
         medicineScheduleRepository.findAll()
                 .stream()
                 .map(s -> s.getMedicine().getUser())
                 .distinct()
                 .forEach(user -> {
-                    long taken  = medicineLogRepository.countLogsByUserIdAndStatusInRange(
-                            user.getId(), Status.TAKEN,  weekStart, weekEnd);
+                    long taken = medicineLogRepository.countLogsByUserIdAndStatusInRange(
+                            user.getId(), Status.TAKEN, weekStart, weekEnd);
                     long missed = medicineLogRepository.countLogsByUserIdAndStatusInRange(
                             user.getId(), Status.MISSED, weekStart, weekEnd);
 
+                    String coachingTip;
+                    try {
+                        coachingTip = aiService.generateCoachingTip(user.getName(), taken, missed);
+                    } catch (Exception e) {
+                        log.error("Failed to generate weekly coaching tip for user {}", user.getName(), e);
+                        coachingTip = "";
+                    }
+
                     // patient report
-                    emailService.sendWeeklyReport(user.getEmail(), user.getName(), taken, missed);
+                    emailService.sendWeeklyReport(user.getEmail(), user.getName(), taken, missed, coachingTip);
 
                     // observer weekly report
                     List<String> observerEmails = observerService
                             .getObserverEmailsForPatient(user.getId(), NotifyType.WEEKLY_REPORT);
                     if (!observerEmails.isEmpty()) {
                         emailService.sendObserverWeeklyReport(
-                                observerEmails, user.getName(), taken, missed);
+                                observerEmails, user.getName(), taken, missed, coachingTip);
                     }
 
                     log.debug("Weekly report sent to: {}", user.getEmail());
@@ -207,7 +218,8 @@ public class ReminderScheduler {
     public void cleanupExpiredRecords() {
         // 1. Deactivate passed medicines
         LocalDate today = LocalDate.now();
-        List<com.mediremind.model.Medicine> expiredMedicines = medicineRepository.findByIsActiveTrueAndEndDateBefore(today);
+        List<com.mediremind.model.Medicine> expiredMedicines = medicineRepository
+                .findByIsActiveTrueAndEndDateBefore(today);
         if (!expiredMedicines.isEmpty()) {
             for (com.mediremind.model.Medicine medicine : expiredMedicines) {
                 medicine.setIsActive(false);
@@ -218,7 +230,8 @@ public class ReminderScheduler {
 
         // 2. Complete past appointments
         LocalDateTime now = LocalDateTime.now();
-        List<Appointment> pastAppointments = appointmentRepository.findByStatusAndAppointmentDateBefore(AppointmentStatus.SCHEDULED, now);
+        List<Appointment> pastAppointments = appointmentRepository
+                .findByStatusAndAppointmentDateBefore(AppointmentStatus.SCHEDULED, now);
         if (!pastAppointments.isEmpty()) {
             for (Appointment appt : pastAppointments) {
                 appt.setStatus(AppointmentStatus.COMPLETED);

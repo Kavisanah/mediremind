@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar'
 import useAuth from '../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
-import { User, Pill, Calendar, ClipboardList, Shield, LogOut, ArrowRight, Settings, RefreshCw, Mail, AlertTriangle } from 'lucide-react'
+import { User, Pill, Calendar, ClipboardList, Shield, LogOut, ArrowRight, Settings, RefreshCw, Mail, AlertTriangle, TrendingUp } from 'lucide-react'
 import api from '../api/axios'
 
 function Profile() {
@@ -12,6 +12,7 @@ function Profile() {
   const [loadingCleanup, setLoadingCleanup] = useState(false)
   const [loadingApts, setLoadingApts] = useState(false)
   const [loadingMissed, setLoadingMissed] = useState(false)
+  const [loadingWeekly, setLoadingWeekly] = useState(false)
   const [message, setMessage] = useState({ text: '', type: '' })
 
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -57,6 +58,18 @@ function Profile() {
     }
   }
 
+  const handleTriggerWeeklyReports = async () => {
+    setLoadingWeekly(true)
+    try {
+      const res = await api.post('/jobs/trigger-weekly-reports')
+      showFeedback(res.data?.message || 'Weekly reports generated & dispatched completed!', 'success')
+    } catch (err) {
+      showFeedback(err.response?.data?.message || 'Failed to trigger weekly reports.', 'error')
+    } finally {
+      setLoadingWeekly(false)
+    }
+  }
+
   const handleLogout = () => {
     logout()
     navigate('/login')
@@ -66,7 +79,7 @@ function Profile() {
     <div className="min-h-screen bg-slate-900 relative overflow-hidden">
       {/* Decorative blobs */}
       <div className="absolute top-10 right-[-10%] w-96 h-96 bg-primary-200/40 rounded-full blur-[120px] pointer-events-none" />
-      
+
       <Navbar />
       <main className="max-w-2xl mx-auto px-4 py-10 md:py-16 relative z-10">
         <h1 className="text-3xl md:text-4xl font-display font-extrabold text-slate-50 tracking-tight mb-8">Profile & Settings</h1>
@@ -112,7 +125,7 @@ function Profile() {
         {isLocal && (
           <div className="card mb-8 border border-slate-800/80 bg-slate-900/40 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
-            
+
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-8 h-8 rounded-lg bg-primary-950/40 border border-primary-500/20 flex items-center justify-center">
                 <Settings className="w-4 h-4 text-primary-400 animate-spin-slow" />
@@ -124,11 +137,10 @@ function Profile() {
             </div>
 
             {message.text && (
-              <div className={`p-3.5 mb-5 rounded-xl text-xs font-semibold border animate-fade-in ${
-                message.type === 'success' 
-                  ? 'bg-sage-950/40 text-sage-400 border-sage-500/20' 
+              <div className={`p-3.5 mb-5 rounded-xl text-xs font-semibold border animate-fade-in ${message.type === 'success'
+                  ? 'bg-sage-950/40 text-sage-400 border-sage-500/20'
                   : 'bg-coral-950/40 text-coral-400 border-coral-500/20'
-              }`}>
+                }`}>
                 {message.text}
               </div>
             )}
@@ -166,7 +178,7 @@ function Profile() {
 
               <button
                 onClick={handleTriggerMissedDoses}
-                disabled={loadingCleanup || loadingApts || loadingMissed}
+                disabled={loadingCleanup || loadingApts || loadingMissed || loadingWeekly}
                 className="w-full flex items-center justify-between p-4 rounded-xl bg-slate-800/40 hover:bg-slate-800 border border-slate-850 hover:border-slate-700 transition-all duration-200 text-left disabled:opacity-50"
               >
                 <div className="flex items-center gap-3">
@@ -178,8 +190,23 @@ function Profile() {
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </button>
+
+              <button
+                onClick={handleTriggerWeeklyReports}
+                disabled={loadingCleanup || loadingApts || loadingMissed || loadingWeekly}
+                className="w-full flex items-center justify-between p-4 rounded-xl bg-slate-800/40 hover:bg-slate-800 border border-slate-850 hover:border-slate-700 transition-all duration-200 text-left disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <TrendingUp className={`w-4 h-4 text-emerald-400 ${loadingWeekly ? 'animate-pulse' : ''}`} />
+                  <div>
+                    <p className="text-sm font-semibold text-slate-200">Trigger Weekly Adherence Reports</p>
+                    <p className="text-xs text-slate-300">Sends reports containing AI coaching tips to patients & guardians.</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
             </div>
-            
+
             <div className="mt-4 border-t border-slate-800/80 pt-3 text-[10px] text-slate-300 flex justify-between">
               <span>Environment: Localhost</span>
               <span>API Path: /api/jobs/*</span>
